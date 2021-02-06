@@ -25,6 +25,7 @@ print(food)
 print(entertainment)
 print(business)
 
+
 print(actual)
 
 # # Run unit tests automatically

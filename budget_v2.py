@@ -4,13 +4,10 @@ class Category:
         self.name = name
         self.ledger = []
 
-    def deposit(self, amount, description=None):
-        if description is not None:
-            self.ledger.append({"amount": amount, "description": description})
-        else:
-            self.ledger.append({"amount": amount, "description": ""})
+    def deposit(self, amount, description=""):
+        self.ledger.append({"amount": amount, "description": description})
 
-    def withdraw(self, amount, description=None):
+    def withdraw(self, amount, description=""):
         if self.check_funds(amount):
             amount_to_withdraw = -amount
             self.deposit(amount_to_withdraw, description)
@@ -19,10 +16,7 @@ class Category:
             return False
 
     def get_balance(self):
-        balance = 0
-        for product in self.ledger:
-            balance += product["amount"]
-        return balance
+        return sum([product["amount"] for product in self.ledger])
 
     def transfer(self, amount, target_category):
         if self.check_funds(amount):
@@ -33,10 +27,7 @@ class Category:
             return False
 
     def check_funds(self, amount):
-        if self.get_balance() >= amount:
-            return True
-        else:
-            return False
+        return self.get_balance() >= amount
 
     def __str__(self):
         descr_length_limit = 23
@@ -66,11 +57,7 @@ def get_category_names(categories):
 def get_expenditures(categories):
     expenditures = []
     for category in categories:
-        expenditure_per_category = 0
-        for product in category.ledger:
-            if product["amount"] < 0:
-                expenditure_per_category += product["amount"]
-        expenditures.append(expenditure_per_category)
+        expenditures.append(sum([product["amount"] for product in category.ledger if product["amount"] < 0]))
     return expenditures
 
 
@@ -86,10 +73,9 @@ def get_percent_of_expenditures(categories):
 def create_spend_chart(categories):
     names = get_category_names(categories)
     percent_of_expenditure = get_percent_of_expenditures(categories)
-    perc_counter = 100
 
     chart_title = "Percentage spent by category\n"
-    while perc_counter >= 0:
+    for perc_counter in range(100, -10, -10):
         percent_indicator = (str(perc_counter) + "|").rjust(4)
         chart_title += percent_indicator
         for percent in percent_of_expenditure:
@@ -98,7 +84,6 @@ def create_spend_chart(categories):
             else:
                 chart_title += "   "
         chart_title += " \n"
-        perc_counter -= 10
 
     horizontal_line = len(percent_indicator) * " " + ("---" * len(categories)) + "-"
     chart_title += horizontal_line
